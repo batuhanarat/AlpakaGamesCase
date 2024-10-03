@@ -10,6 +10,7 @@ public class MobileJoystick : MonoBehaviour
     [SerializeField] private RectTransform knobTransform;
 
     [SerializeField] private float moveFactor;
+    private Vector3 _move;
     private bool _canControl;
     private Vector3 clickedPosition;
 
@@ -18,8 +19,6 @@ public class MobileJoystick : MonoBehaviour
     {
         Hide();
     }
-
-
     void Update()
     {
         if(_canControl) {
@@ -31,7 +30,9 @@ public class MobileJoystick : MonoBehaviour
         joystickTransform.position = clickedPosition;
         Show();
     }
-
+    public Vector3 GetMoveVector() {
+        return _move;
+    }
     private void Control() {
         Vector3 currentPosition = Input.mousePosition;
         Vector3 direction = currentPosition - clickedPosition;
@@ -45,14 +46,13 @@ public class MobileJoystick : MonoBehaviour
 
         moveMagnitude = Mathf.Min(moveMagnitude, realWidth);
 
-        Vector3 move = direction.normalized * moveMagnitude;
-        Vector3 targetPosition = clickedPosition+move;
+        _move = direction.normalized * moveMagnitude;
+        Vector3 targetPosition = clickedPosition+_move;
 
         knobTransform.position = targetPosition;
         if(Input.GetMouseButtonUp(0)) {
             Hide();
         }
-
     }
     private void Show() {
         joystickTransform.gameObject.SetActive(true);
@@ -61,6 +61,7 @@ public class MobileJoystick : MonoBehaviour
     private void Hide() {
         joystickTransform.gameObject.SetActive(false);
         _canControl = false;
+        _move = Vector3.zero;
     }
 
 }
