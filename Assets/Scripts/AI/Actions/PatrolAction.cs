@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "AlpakaGamesCase/Actions/PatrolAction")]
-public class PatrolAction : Action
+public class PatrolAction : EnemyAction
 {
     public override void Act(StateController controller)
     {
