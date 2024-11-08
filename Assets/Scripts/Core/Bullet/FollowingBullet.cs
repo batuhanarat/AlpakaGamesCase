@@ -1,4 +1,3 @@
-using Game.Managers;
 using UnityEngine;
 public class FollowingBullet : MonoBehaviour
 {
@@ -8,6 +7,7 @@ public float BulletSpeed;
 private bool isFired;
 private float _damage;
 private Transform target;
+    /*
     void Update()
     {
     if (!isFired) return;
@@ -27,6 +27,7 @@ private Transform target;
             ServiceProvider.Pool.ReturnToPool(PoolableType.Bullet,gameObject);
         }
     }
+    */
     public void Fire(Transform targetLocation, float damage)
     {
         isFired = true;

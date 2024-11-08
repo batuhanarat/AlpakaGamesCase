@@ -1,13 +1,14 @@
-using Game.Managers;
+using DependencyInjection;
 using UnityEngine;
 
-public class AssetLibrary : MonoBehaviour , IProvidable
+public class AssetLibrary : MonoBehaviour , IDependencyProvider
 {
         [SerializeField] private GameObject DamagePopUp;
         [SerializeField] private GameObject Gem;
-        private void Awake()
-        {
-            ServiceProvider.Register(this);
+
+        [Provide]
+        public AssetLibrary ProvideAssetLib() {
+            return this;
         }
 
         public T GetAsset<T>(AssetType assetType, string objectName) where T : MonoBehaviour

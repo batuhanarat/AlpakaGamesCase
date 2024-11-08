@@ -1,16 +1,15 @@
-
-using Game.Managers;
+using DependencyInjection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class ScenesManager : MonoBehaviour, IProvidable
+public class ScenesManager : MonoBehaviour, IDependencyProvider
 {
 
-    private void Awake()
-    {
-        ServiceProvider.Register(this);
-    }
 
+    [Provide]
+    public ScenesManager ProvideScenesManager(){
+        return this;
+    }
 
     public void LoadStartScene() {
         LoadScene(Scene.START_SCENE);

@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c408853ae04e14c638d9683a44454795, type: 3}
   m_Name: WalletData
   m_EditorClassIdentifier: 
-  totalValue: 0
+  totalValue: 1000

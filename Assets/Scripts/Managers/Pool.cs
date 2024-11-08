@@ -1,15 +1,13 @@
 using System.Collections.Generic;
-using Game.Managers;
 using UnityEngine;
 
-public class Pool : MonoBehaviour, IProvidable
+public class Pool : MonoBehaviour
 {
     public bool IsInitialized { get; private set; } = false;
         public Dictionary<PoolableType, Queue<GameObject>> poolDictionary = new Dictionary<PoolableType, Queue<GameObject>>();
         [SerializeField] private ObjectPoolData _poolData;
 
         public void Awake() {
-            ServiceProvider.Register(this);
 
             if(_poolData == null) {
             Debug.LogWarning("Pool data is null");

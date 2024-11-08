@@ -1,4 +1,3 @@
-using Game.Managers;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Ranged Weapon", menuName = "Weapons/Ranged Weapon")]
@@ -14,7 +13,7 @@ public class RangedWeaponData : WeaponData
             if (nearestTarget != null)
             {
                 FaceTarget(attacker, nearestTarget,controller);
-                FireBullet(attacker, nearestTarget);
+                //FireBullet(attacker, nearestTarget);
             }
         } else {
             GameManager.CurrentState = GameState.PATROL;
@@ -38,13 +37,14 @@ public class RangedWeaponData : WeaponData
 
         return nearestTarget;
     }
-    private void FireBullet(Transform attacker, Transform target)
+    /*private void FireBullet(Transform attacker, Transform target)
     {
         var bullet = ServiceProvider.Pool.SpawnFromPool(PoolableType.Bullet);
         bullet.transform.SetPositionAndRotation(attacker.position, Quaternion.identity);
         FollowingBullet followingBullet = bullet.GetComponent<FollowingBullet>();
         followingBullet.Fire(target, damage);
     }
+    */
     private void FaceTarget(Transform attacker, Transform targetPosition,IHumanoidController controller)
     {
         Vector3 directionToTarget = (targetPosition.position - attacker.position).normalized;

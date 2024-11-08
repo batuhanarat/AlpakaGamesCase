@@ -1,28 +1,46 @@
 using System.Collections;
-using Game.Managers;
+using DependencyInjection;
 using UnityEngine;
 
-public  class GameManager: MonoBehaviour, IProvidable
+public  class GameManager: MonoBehaviour
 {
     public static GameState CurrentState = GameState.PATROL;
     private float counter;
+    [SerializeField] private float spawnInterval = 100f;
+    public bool CanPlay { get; private set; }
+    [Inject] private EnemySpawner EnemySpawner;
 
-    [SerializeField] private float spawnInterval = 1000f;
-    public bool CanPlay { get; set; }
+    private EventBinding<PlayerDiedEvent> playerDiedBinding;
 
-
-    void Awake()
+    void Start()
     {
-        ServiceProvider.Register(this);
         counter = 0;
+        StartGame();
+    }
+    void OnEnable() {
+        playerDiedBinding = new EventBinding<PlayerDiedEvent>(StopGame);
+        EventBus<PlayerDiedEvent>.Register(playerDiedBinding);
+    }
+    void OnDisable() {
+        EventBus<PlayerDiedEvent>.Deregister(playerDiedBinding);
+    }
+
+    private void StopGame() {
+        CanPlay = false;
+    }
+
+    private void StartGame() {
         CanPlay = true;
     }
 
 
-    private void Start()
+
+
+    private void Update()
     {
-        if(CanPlay) {
-            StartCoroutine(SpawnEnemyRoutine());
+        if(Input.GetKeyDown(KeyCode.Space)) {
+
+            EnemySpawner.SpawnEnemies(10, EnemyType.HEADER);
         }
     }
 
@@ -31,7 +49,7 @@ public  class GameManager: MonoBehaviour, IProvidable
         while (true)
         {
             yield return new WaitForSeconds(spawnInterval);
-            ServiceProvider.EnemySpawner.SpawnEnemyInRandomLocation();
+
         }
     }
 

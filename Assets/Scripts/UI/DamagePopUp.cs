@@ -1,13 +1,17 @@
-using Game.Managers;
+
+using DependencyInjection;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
 public class DamagePopUp : MonoBehaviour
 {
-    public static DamagePopUp Create(Transform transform, float damageAmount, bool isCritical)
+    [Inject] public  AssetLibrary assetLib;
+
+    public DamagePopUp Create(Transform transform, float damageAmount, bool isCritical)
     {
-        var damagePopUp = ServiceProvider.AssetLib.GetAsset<DamagePopUp>(AssetType.DAMAGEPOPUP);
+        var damagePopUp = assetLib.GetAsset<DamagePopUp>(AssetType.DAMAGEPOPUP);
 
         Quaternion originalRotation = damagePopUp.transform.rotation;
         damagePopUp.transform.SetParent(transform, false);
@@ -26,8 +30,8 @@ public class DamagePopUp : MonoBehaviour
     void Awake()
     {
         _textMesh = GetComponent<TextMeshPro>();
-    }
 
+    }
     private void Setup(float damageAmount, bool isCriticalHit)
     {
         _textMesh.SetText(damageAmount.ToString());

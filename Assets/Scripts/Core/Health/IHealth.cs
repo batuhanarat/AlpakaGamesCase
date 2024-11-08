@@ -1,61 +1,69 @@
-
-using System;
-
 public interface IHealth
 {
-    float CurrentHealth { get;  set; }
-    void Prepare(Action OnKilled);
-    void GetHit(float damage);
+    float CurrentHealth { get; }
+    void GetDamage(float damage);
     void Die();
 }
 
 public class EnemyHealth : IHealth
 {
-    public float CurrentHealth { get; set; }
-    private Action _onKilled;
-    public void Prepare(Action OnKilled)
-    {
-        _onKilled = OnKilled;
+    public float CurrentHealth { get; private set; }
+
+    public EnemyHealth(int initialHealth) {
+        CurrentHealth = initialHealth;
     }
     public void Die()
     {
-        _onKilled();
+        RaiseDiedEvent();
     }
-    public void GetHit(float damage)
+    public void GetDamage(float damage)
     {
         CurrentHealth -= damage;
+        RaiseHitEvent(damage);
         if(CurrentHealth<=0) {
             Die();
         }
+    }
+    private void RaiseHitEvent(float damage)
+    {
+        EventBus<EnemyHitEvent>.Raise(new EnemyHitEvent{
+            damage = damage});
+    }
+    private void RaiseDiedEvent()
+    {
+        EventBus<EnemyDiedEvent>.Raise(new EnemyDiedEvent{});
     }
 }
 
 public class PlayerHealth : IHealth
 {
-    public float CurrentHealth { get ; set; }
-    private Action<float> onDamage;
-    private Action onKilled;
+    public float CurrentHealth { get ; private set; }
+
+    public PlayerHealth(float initialHealth) {
+        CurrentHealth = initialHealth;
+    }
 
     public void Die()
     {
-        onKilled();
+        RaiseDiedEvent();
     }
 
-    public void GetHit(float damage)
+    public void GetDamage(float damage)
     {
         CurrentHealth--;
-        onDamage(CurrentHealth);
+        RaiseHitEvent();
         if(CurrentHealth<=0) {
             Die();
         }
     }
 
-    public void SetUICallback(Action<float> OnDamage) {
-        onDamage = OnDamage;
-    }
-
-    public void Prepare(Action OnKilled)
+    private void RaiseHitEvent()
     {
-        onKilled = OnKilled;
+        EventBus<PlayerHitEvent>.Raise(new PlayerHitEvent{
+            newHealth = CurrentHealth});
+    }
+    private void RaiseDiedEvent()
+    {
+        EventBus<PlayerDiedEvent>.Raise(new PlayerDiedEvent{});
     }
 }

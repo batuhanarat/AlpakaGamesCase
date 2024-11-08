@@ -1,28 +1,47 @@
+public interface IWallet
+{
+    public float Balance { get;  }
+    public void Deposit(float amount);
+    public bool TryWithdraw(float amount);
+    public bool CanAfford(float amount);
+    public void Initialize(WalletData data);
+}
 
-using System;
-
-public class Wallet
+public class Wallet: IWallet
 {
     private WalletData _walletData;
-    private Action<int> onUpdateUI;
-
-    public void AddToWallet(int value) {
-        _walletData.totalValue += value;
-        onUpdateUI(_walletData.totalValue);
+    public float Balance
+    {
+        get => _walletData.totalValue;
+        private set => _walletData.totalValue = value;
     }
-
-    public void TryMakeUpgrade(int upgradeValue) {
-        if(_walletData.totalValue >= upgradeValue) {
-            _walletData.totalValue -= upgradeValue;
-        }
-    }
-
-    public Wallet(WalletData walletData, Action<int> OnUpdateUI) {
+    public void Initialize(WalletData walletData)
+    {
         _walletData = walletData;
-        onUpdateUI = OnUpdateUI;
+    }
+    public void Deposit(float amount)
+    {
+        Balance += amount;
+        RaiseBalanceChangedEvent();
+    }
+    public bool TryWithdraw(float amount)
+    {
+        if(CanAfford(amount)) {
+            Balance -= amount;
+            RaiseBalanceChangedEvent();
+            return true;
+        }
+        return false;
+    }
+    public bool CanAfford(float amount) {
+        return Balance >= amount;
+    }
+    private void RaiseBalanceChangedEvent()
+    {
+        EventBus<BalanceChangedEvent>.Raise(new BalanceChangedEvent{
+            newBalance = Balance});
     }
 
-    public int GetTotalGemCount() {
-        return _walletData.totalValue;
-    }
 }
+
+

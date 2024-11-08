@@ -1,32 +1,21 @@
-using Game.Managers;
 using UnityEngine;
 
-public class UIManager : MonoBehaviour, IProvidable
+public class UIManager : MonoBehaviour
 {
-    [SerializeField] private PlayerUIManager playerUIManager;
     [SerializeField] private GameObject LosePanel;
-    private void Awake()
+    private EventBinding<PlayerDiedEvent> playerDiedBinding;
+
+    void OnEnable()
     {
-        ServiceProvider.Register(this);
+        playerDiedBinding = new EventBinding<PlayerDiedEvent>(ShowLosePanel);
+        EventBus<PlayerDiedEvent>.Register(playerDiedBinding);
     }
-
-    public void Prepare(float initialHealth, int initialGem) {
-        playerUIManager.Prepare(initialHealth,initialGem);
+    void OnDisable()
+    {
+        EventBus<PlayerDiedEvent>.Deregister(playerDiedBinding);
     }
-
-    public void UpdatePlayerKill() {
-        playerUIManager.UpdatePlayerKill();
-    }
-
-    public void UpdatePlayerHealth(float newHealth) {
-        playerUIManager.UpdatePlayerHealth(newHealth);
-    }
-
-    public void UpdatePlayerWallet(int newGem) {
-        playerUIManager.UpdatePlayerWallet(newGem);
-    }
-
-    public void ShowLosePanel() {
+    public void ShowLosePanel()
+    {
         LosePanel.SetActive(true);
     }
 

@@ -1,52 +1,87 @@
 using System.Collections;
 using System.Collections.Generic;
-using Game.Managers;
+using AudioSystem;
+using DependencyInjection;
 using UnityEngine;
 
 public class UpgradeManager : MonoBehaviour
 {
-    [SerializeField] private List<GameObject> upgradeContent = new List<GameObject>();
-    [SerializeField] private WalletData walletData;
-    [SerializeField] private UpgradeUIManager upgradeUIManager;
-    [SerializeField] private UpgradeData upgradeData;
+    #region Serialized Variables
+    [SerializeField] private List<Upgrade> upgrades = new();
+    [SerializeField] private UpgradeStats _upgradeData;
+    [SerializeField] private SoundData upgradeIterationSound;
+    [SerializeField] private SoundData upgradeSound;
+    #endregion
 
-
+    #region Private Variables
     private Color originalColor;
     private Color yellowColor = Color.yellow;
     private HashSet<int> selectedIndexes = new HashSet<int>();
+    private SoundBuilder soundBuilder;
+    #endregion
 
-    void Start() {
-        upgradeUIManager.Prepare(upgradeData.CostOfUpgrade, upgradeData.CostOfUpgrade <= walletData.totalValue);
+    #region Dependencies
+
+    [Inject] Wallet wallet;
+    [Inject] UpgradeUIManager upgradeUIManager;
+    [Inject] SoundManager soundManager;
+    [Inject] ScenesManager scenesManager;
+
+    #endregion
+
+
+    public float UpgradeCost
+    {
+        get => _upgradeData.CostOfUpgrade;
+        private set => _upgradeData.CostOfUpgrade = value;
     }
+    public float UpgradeScaler => _upgradeData.UpgradeScaler;
 
+
+
+    void Start()
+    {
+        upgradeUIManager.Prepare(UpgradeCost, wallet.CanAfford(UpgradeCost));
+        soundBuilder = soundManager.CreateSoundBuilder();
+    }
     public void TryStartUpgradeSequence()
     {
-        if(upgradeData.CostOfUpgrade<= walletData.totalValue){
-            upgradeData.CostOfUpgrade +=  upgradeData.CostOfUpgrade * upgradeData.UpgradeScaler;
+        var isSuccessful = wallet.TryWithdraw(UpgradeCost);
+        if(isSuccessful) {
+            IncreaseUpgradeCost();
             StartCoroutine(UpgradeSequence());
         } else {
             StartCoroutine(Wait2SecondsAndLoadStartScene());
         }
-
+    }
+    private void IncreaseUpgradeCost()
+    {
+          UpgradeCost +=  UpgradeCost * UpgradeScaler;
+    }
+    private void PlayUpgradeSound(SoundData soundData)
+    {
+        soundBuilder
+            .WithRandomPitch()
+            .WithPosition(transform.position)
+            .Play(soundData);
     }
 
     private IEnumerator UpgradeSequence()
     {
-
-        originalColor = upgradeContent[0].GetComponent<UpgradeUI>().frame.color;
-
+        originalColor = upgrades[0].Renderer.color;
         for (int iteration = 0; iteration < 5; iteration++)
         {
             int randomIndex;
             do
             {
-                randomIndex = Random.Range(0, upgradeContent.Count);
+                randomIndex = Random.Range(0, upgrades.Count);
             } while (selectedIndexes.Contains(randomIndex));
 
             selectedIndexes.Add(randomIndex);
-            SpriteRenderer currentRenderer = upgradeContent[randomIndex].GetComponent<UpgradeUI>().frame;
+            SpriteRenderer currentRenderer = upgrades[randomIndex].Renderer;
 
             currentRenderer.color = yellowColor;
+            PlayUpgradeSound(upgradeIterationSound);
 
             yield return new WaitForSeconds(0.2f);
 
@@ -56,14 +91,16 @@ public class UpgradeManager : MonoBehaviour
         int finalIndex;
         do
         {
-            finalIndex = Random.Range(0, upgradeContent.Count);
+            finalIndex = Random.Range(0, upgrades.Count);
         } while (selectedIndexes.Contains(finalIndex));
 
-        SpriteRenderer selectedRenderer = upgradeContent[finalIndex].GetComponent<UpgradeUI>().frame;
+        SpriteRenderer selectedRenderer = upgrades[finalIndex].Renderer;
         selectedRenderer.color = yellowColor;
 
-        var upgrade =  upgradeContent[finalIndex];
-        upgrade.GetComponent<UpgradeUI>().Upgrade();
+        var upgrade =  upgrades[finalIndex];
+        upgrade.UpgradeWeapon();
+        PlayUpgradeSound(upgradeSound);
+
 
 
         StartCoroutine(Wait2SecondsAndLoadStartScene());
@@ -71,6 +108,6 @@ public class UpgradeManager : MonoBehaviour
 
     private IEnumerator Wait2SecondsAndLoadStartScene() {
         yield return new WaitForSeconds(2f);
-        ServiceProvider.ScenesManager.LoadStartScene();
+        scenesManager.LoadStartScene();
     }
 }

@@ -1,21 +1,22 @@
 using System.Collections.Generic;
-using Game.Managers;
+using AudioSystem;
+using DependencyInjection;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerController : MonoBehaviour,IHumanoidController
+public class PlayerController : MonoBehaviour,IHumanoidController, IDependencyProvider
 {
+    [Provide]
+    public PlayerController ProvidePlayer() {
+        return this;
+    }
     [Header("Components")]
     private PlayerAnimator animator;
     private CharacterController characterController;
 
     [Header("Dependencies")]
     [SerializeField] private MobileJoystick mobileJoystick;
-    [SerializeField] private List<Weapon> Weapons = new List<Weapon>();
-    private Wallet _wallet;
     private IHealth _health;
-    private UIManager _uiManager;
-    private GameManager _gameManager;
 
     [Header("Variables")]
     [SerializeField] private float moveSpeed;
@@ -24,6 +25,12 @@ public class PlayerController : MonoBehaviour,IHumanoidController
     [SerializeField] private Transform _dynamicWeaponHolder;
     [SerializeField] private WalletData walletData;
     private const float MAX_HEALTH = 10;
+
+    [Inject] SoundManager soundManager;
+    [Inject] IWallet wallet;
+    [SerializeField] SoundData attackSound;
+
+    private EventBinding<PlayerDiedEvent> playerDiedBinding;
 
     public Transform DynamicWeaponHolder  {
         get => _dynamicWeaponHolder;
@@ -39,61 +46,35 @@ public class PlayerController : MonoBehaviour,IHumanoidController
         set => _targetLayer = value;
     }
     public Transform TargetLocation {get; set;}
+    public Transform myTransform { get => transform;}
 
     void Awake()
     {
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<PlayerAnimator>();
-        Utilities.SetPlayerTransform(gameObject.transform);
     }
 
     void Start()
     {
-        _uiManager = ServiceProvider.UIManager;
-        _gameManager = ServiceProvider.GameManager;
-        InstantiateHealth();
-        InstantiateWallet();
-        InstantiateWeapons();
-        _uiManager.Prepare(MAX_HEALTH, _wallet.GetTotalGemCount());
+        _health = new PlayerHealth(MAX_HEALTH);
+        wallet.Initialize(walletData);
     }
 
-    private void InstantiateWallet()
-    {
-        _wallet = new Wallet(walletData, _uiManager.UpdatePlayerWallet);
+    void OnEnable() {
+        playerDiedBinding = new EventBinding<PlayerDiedEvent>(Die);
+        EventBus<PlayerDiedEvent>.Register(playerDiedBinding);
+    }
+    void OnDisable() {
+        EventBus<PlayerDiedEvent>.Deregister(playerDiedBinding);
     }
 
-    private void InstantiateHealth()
-    {
-        _health = new PlayerHealth
-        {
-            CurrentHealth = MAX_HEALTH
-        };
-        _health.Prepare(() =>
-        {
-            Die();
-        });
-        if (_health is PlayerHealth playerHealth)
-        {
-            playerHealth.SetUICallback(_uiManager.UpdatePlayerHealth);
-        }
-    }
-    private void InstantiateWeapons()
-    {
-        for(int i = 0 ; i<Weapons.Count; i++) {
-            Weapons[i] = Instantiate(Weapons[i]);
-            if(Weapons[i] is StaticWeapon) {
-                Weapons[i].transform.SetParent(StaticWeaponHolder, false);
-            } else {
-                Weapons[i].transform.SetParent(DynamicWeaponHolder, false);
-            }
-        }
-    }
+
     void Update()
     {
-        if(_gameManager.CanPlay) {
-            ControlMovement();
-            ControlAttack();
-        }
+
+        ControlMovement();
+     //   ControlAttack();
+
     }
     private void ControlMovement()
     {
@@ -108,25 +89,24 @@ public class PlayerController : MonoBehaviour,IHumanoidController
         moveVector.y = 0;
         characterController.Move(moveVector);
     }
-    private void ControlAttack() {
-        Attack();
+
+    public void PlayAttackSound() {
+        SoundBuilder soundBuilder = soundManager.CreateSoundBuilder();
+
+        soundBuilder
+            .WithRandomPitch()
+            .WithPosition(transform.position)
+            .Play(attackSound);
     }
-    private void Attack() {
-        foreach(var _weapon in Weapons) {
-            _weapon.Shoot(animator,TargetLayer,this);
-        }
-    }
+
     public void CollectGem(int value) {
-        _wallet.AddToWallet(value);
+        wallet.Deposit(value);
     }
 
-    public void GetHit() {
-        _health.GetHit(0);
+    public void GetHit(float defaultDamage = 1) {
+        _health.GetDamage(defaultDamage);
     }
-    private void Die() {
-
-        _uiManager.ShowLosePanel();
-        _gameManager.CanPlay = false;
-
+    private void Die(PlayerDiedEvent playerDiedEvent) {
+        Destroy(gameObject,2f);
     }
 }
