@@ -6,6 +6,7 @@ public class CombatManager : MonoBehaviour
 {
     [SerializeField] private RangedWeapon rangedWeapon;
     [SerializeField] private AreaDamageWeapon areaDamageWeapon;
+    private PlayerMovementController playerMovementController;
 
 
     private EventBinding<EnemySpottedInWideRangeEvent> enemySpottedInWideRangeEventBinding;
@@ -23,6 +24,7 @@ public class CombatManager : MonoBehaviour
     {
         wideRangeDetector = GetComponent<WideRangeController>();
         closeRangeDetector = GetComponent<CloseRangeController>();
+        playerMovementController = GetComponent<PlayerMovementController>();
     }
     void OnEnable()
     {
@@ -46,7 +48,8 @@ public class CombatManager : MonoBehaviour
         if(rangedWeapon.CanAttack)
         {
             var closestEnemy = FindClosestTarget(enemiesInWideRange);
-            transform.LookAt(closestEnemy.transform);
+            playerMovementController.TargetLocation = closestEnemy.transform;
+           // transform.LookAt(closestEnemy.transform);
             rangedWeapon.Attack(closestEnemy);
         }
         if(areaDamageWeapon.CanAttack)
@@ -58,8 +61,12 @@ public class CombatManager : MonoBehaviour
     private void OnWideRangeUpdated(EnemySpottedInWideRangeEvent rangeUpdatedEvent)
     {
         _totalCountOfEnemiesInRange = rangeUpdatedEvent.enemiesInRange.Count;
+
+        RaisePlayerStateUpdate(_totalCountOfEnemiesInRange);
+
         enemiesInWideRange = rangeUpdatedEvent.enemiesInRange;
     }
+
     private void OnShortRangeUpdated(EnemySpottedInShortRangeEvent rangeUpdatedEvent)
     {
         enemiesInShortRange = rangeUpdatedEvent.enemiesInRange;
@@ -72,5 +79,15 @@ public class CombatManager : MonoBehaviour
         return enemiesInRange
             .OrderBy(enemy => Vector3.Distance(transform.position, enemy.transform.position))
             .FirstOrDefault();
+    }
+
+    public void RaisePlayerStateUpdate(int enemyInRangeCount ) {
+        if(enemyInRangeCount > 0) {
+            EventBus<PlayerStateUpdatedEvent>.Raise(new PlayerStateUpdatedEvent{
+            newState = PlayerState.COMBAT});
+        } else {
+            EventBus<PlayerStateUpdatedEvent>.Raise(new PlayerStateUpdatedEvent{
+            newState = PlayerState.PATROL});
+        }
     }
 }

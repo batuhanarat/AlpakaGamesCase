@@ -11,17 +11,17 @@ public class PlayerAnimator : MonoBehaviour,IAnimator
 
 
 
-    public void ManageMovementAnimation(Vector3 moveVector,Transform targetTransform) {
+    public void ManageMovementAnimation(Vector3 moveVector,Transform targetTransform,PlayerState playerState) {
         if(moveVector.magnitude>0) {
             animator.SetFloat("MoveSpeed", moveVector.magnitude * moveSpeedModifier);
             PlayRunAnimation();
-            if(GameManager.CurrentState == GameState.PATROL)
+            if(playerState == PlayerState.PATROL)
             {
                 //lookDirection = moveVector.normalized;
                 Renderer.forward = moveVector.normalized;
             }
 
-            if(GameManager.CurrentState == GameState.COMBAT) {
+            if(playerState == PlayerState.COMBAT) {
                 if(targetTransform == null  ) return;
                 Vector3 directionToTarget = (targetTransform.position - transform.position).normalized;
                 directionToTarget.y = 0;

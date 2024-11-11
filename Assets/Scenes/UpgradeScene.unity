@@ -1007,16 +1007,54 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a72bd77e49b64a8abfb476c9ea24c66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  upgradeContent:
-  - {fileID: 1165527584}
-  - {fileID: 1282016945}
-  - {fileID: 611736020}
-  - {fileID: 1354523419}
-  - {fileID: 1212442552}
-  - {fileID: 1601402690}
-  walletData: {fileID: 11400000, guid: 481d141c2f4014fdaa944247b6d0917c, type: 2}
-  upgradeUIManager: {fileID: 1456961278}
-  upgradeData: {fileID: 11400000, guid: f4fa4d82af1b34c43b355dd21d0797ab, type: 2}
+  upgrades: []
+  _upgradeData: {fileID: 11400000, guid: f4fa4d82af1b34c43b355dd21d0797ab, type: 2}
+  upgradeIterationSound:
+    clip: {fileID: 0}
+    mixerGroup: {fileID: 0}
+    loop: 0
+    playOnAwake: 0
+    frequentSound: 0
+    mute: 0
+    bypassEffects: 0
+    bypassListenerEffects: 0
+    bypassReverbZones: 0
+    priority: 128
+    volume: 1
+    pitch: 1
+    panStereo: 0
+    spatialBlend: 0
+    reverbZoneMix: 1
+    dopplerLevel: 1
+    spread: 0
+    minDistance: 1
+    maxDistance: 500
+    ignoreListenerVolume: 0
+    ignoreListenerPause: 0
+    rolloffMode: 0
+  upgradeSound:
+    clip: {fileID: 0}
+    mixerGroup: {fileID: 0}
+    loop: 0
+    playOnAwake: 0
+    frequentSound: 0
+    mute: 0
+    bypassEffects: 0
+    bypassListenerEffects: 0
+    bypassReverbZones: 0
+    priority: 128
+    volume: 1
+    pitch: 1
+    panStereo: 0
+    spatialBlend: 0
+    reverbZoneMix: 1
+    dopplerLevel: 1
+    spread: 0
+    minDistance: 1
+    maxDistance: 500
+    ignoreListenerVolume: 0
+    ignoreListenerPause: 0
+    rolloffMode: 0
 --- !u!4 &354240052
 Transform:
   m_ObjectHideFlags: 0
@@ -2395,7 +2433,6 @@ MonoBehaviour:
   weaponData: {fileID: 11400000, guid: 184581b09cdce4083beb0bfe4d1b142e, type: 2}
   upgradeType: 2
   upgradeScale: 0.2
-  frame: {fileID: 2124777331}
 --- !u!1 &619579696
 GameObject:
   m_ObjectHideFlags: 0
@@ -3337,7 +3374,6 @@ MonoBehaviour:
   weaponData: {fileID: 11400000, guid: 184581b09cdce4083beb0bfe4d1b142e, type: 2}
   upgradeType: 0
   upgradeScale: 0.2
-  frame: {fileID: 1221057621}
 --- !u!1 &1194666818
 GameObject:
   m_ObjectHideFlags: 0
@@ -3471,7 +3507,6 @@ MonoBehaviour:
   weaponData: {fileID: 11400000, guid: 236aa8021bfb74f43a852d6462f64498, type: 2}
   upgradeType: 1
   upgradeScale: 0.2
-  frame: {fileID: 1898092369}
 --- !u!1 &1221057619
 GameObject:
   m_ObjectHideFlags: 0
@@ -3607,7 +3642,6 @@ MonoBehaviour:
   weaponData: {fileID: 11400000, guid: 184581b09cdce4083beb0bfe4d1b142e, type: 2}
   upgradeType: 1
   upgradeScale: 0.2
-  frame: {fileID: 403698006}
 --- !u!1 &1353206628
 GameObject:
   m_ObjectHideFlags: 0
@@ -3862,7 +3896,6 @@ MonoBehaviour:
   weaponData: {fileID: 11400000, guid: 236aa8021bfb74f43a852d6462f64498, type: 2}
   upgradeType: 0
   upgradeScale: 0.2
-  frame: {fileID: 768177026}
 --- !u!1 &1396444760
 GameObject:
   m_ObjectHideFlags: 0
@@ -4659,7 +4692,6 @@ MonoBehaviour:
   weaponData: {fileID: 11400000, guid: 236aa8021bfb74f43a852d6462f64498, type: 2}
   upgradeType: 2
   upgradeScale: 0.2
-  frame: {fileID: 2144248536}
 --- !u!1 &1620727734
 GameObject:
   m_ObjectHideFlags: 0

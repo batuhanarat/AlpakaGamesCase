@@ -31,3 +31,7 @@ public struct EnemySpottedInWideRangeEvent : IEvent {
 public struct EnemySpottedInShortRangeEvent : IEvent {
     public List<EnemyController> enemiesInRange;
 }
+
+public struct PlayerStateUpdatedEvent : IEvent {
+    public PlayerState newState;
+}
